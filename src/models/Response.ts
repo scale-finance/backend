@@ -1,4 +1,6 @@
 import { Response as Res } from "express";
+import jwt from "jsonwebtoken";
+import User from "./User";
 
 /**
  * This interface should be used to describe all responses from the server. If
@@ -18,12 +20,42 @@ export default class Response<T = void> {
         this.res = res;
     }
 
-    create<T>(status: number, message: string, data?: T) {
+    create(status: number, message: string, data?: T) {
         this.res.statusCode = status
         this.res.json({
             status,
             message,
             data,
         });
+    }
+
+    /**
+     * Authenticates a user and sets a cookie with a JWT
+     * @param user the user to authenticate
+     */
+    async authenticate(user: User) {
+        // generate jwt token
+        const token = jwt.sign({ id: user.id }, process.env.SECRET as string, {
+            expiresIn: "7d",
+        });
+
+        // expire cookie in 1 week
+        const expiration = 1000 * 60 * 60 * 24 * 7;
+
+        this.res.cookie("authToken", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: expiration,
+        });
+    }
+
+    /**
+     * Gets the user from the response
+     * 
+     * @returns the user from the response
+     */
+    getUser(): User {
+        return new User(this.res.locals.user);
     }
 }

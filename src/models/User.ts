@@ -2,7 +2,7 @@ import { user as UserType } from "@prisma/client";
 import db from "../../prisma/client";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import { status } from "../types/server";
+import { Request } from "express";
 
 /**
  * Class handling all user operations
@@ -12,12 +12,18 @@ export default class User {
     email: string;
     fullName: string;
     
-    private constructor (user: UserType) {
+    constructor (user: UserType) {
         this.id = user.id;
         this.email = user.email;
         this.fullName = user.fullName;
     }
 
+    /**
+     * Creates a new user
+     * 
+     * @param incomingUser incoming user to be created
+     * @returns the newly created user
+     */
     static async create (incomingUser: Omit<UserType, "id">): Promise<User> {
         // check if user is unique
         const existingUser = !!(await db.user.findFirst({
@@ -48,6 +54,24 @@ export default class User {
         } catch (err) {
             console.log(err);
             throw new Error("Failed to create user in database.")
+        }
+    }
+
+    /**
+     * Find the user with the given id
+     * 
+     * @param id the id of the user to find
+     * @returns user if found, null if not found
+     */
+    static async findById(id: string): Promise<User | null> {
+        try {
+            const user = await db.user.findUnique({ where: { id } });
+        
+            if (!user) return null;
+            return new User(user);
+        } catch (err) {
+            console.log(err);
+            throw new Error("Failed to find user in database.");
         }
     }
 }

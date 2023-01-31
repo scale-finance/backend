@@ -2,7 +2,7 @@ import { prismaMock } from "../../prisma/singleton";
 import { User } from "../../src/models";
 import { UserType } from "../../src/types/models";
 
-describe("User", () => {
+describe("User Model", () => {
     it("can create user", async () => {
         const user: UserType = {
             fullName: "John Doe",
@@ -50,6 +50,35 @@ describe("User", () => {
 
         await expect(User.create(user)).rejects.toThrowError(
             "Failed to create user in database."
+        );
+    });
+
+    it("can find user by id", async () => {
+        const user = {
+            id: expect.anything(),
+            fullName: "John Doe",
+            email: "jdoe@example.com",
+        };
+
+        prismaMock.user.findUnique.mockResolvedValue({
+            ...user,
+            password: expect.anything(),
+        });
+
+        await expect(User.findById(user.id)).resolves.toEqual(user);
+    });
+
+    it("will return null if user is not found", async () => {
+        prismaMock.user.findUnique.mockResolvedValue(null);
+
+        await expect(User.findById("id")).resolves.toEqual(null);
+    });
+
+    it("will throw error if user find fails", async () => {
+        prismaMock.user.findUnique.mockRejectedValue(new Error("Failed to find user in database."));
+
+        await expect(User.findById("id")).rejects.toThrowError(
+            "Failed to find user in database."
         );
     });
 });
