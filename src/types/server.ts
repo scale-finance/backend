@@ -17,15 +17,3 @@ export const status = {
     serviceUnavailable: 503,
     gatewayTimeout: 504,
 };
-
-/**
- * This interface should be used to describe all responses from the server. If
- * a return type is applicable it can be added to the data property.
- * 
- * @param T the type of the data property
- */
-export interface Response<T = void> {
-    status: typeof status[keyof typeof status];
-    message: string;
-    data?: T;
-}

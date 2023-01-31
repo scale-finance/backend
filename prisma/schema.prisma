@@ -10,6 +10,6 @@ datasource db {
 model user {
   id       String @id
   fullName String
-  email    String
   password String
+  email    String @unique(map: "email")
 }
