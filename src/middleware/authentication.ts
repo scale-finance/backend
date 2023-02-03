@@ -22,7 +22,7 @@ const authenticate: RequestHandler = async (req, res, next) => {
 
     // check if id has valid data
     try {
-        const decoded = jwt.verify(token, process.env.SECRET as string) as Record<string, any>;
+        const decoded = jwt.verify(token, process.env.SESSION_SECRET as string) as Record<string, any>;
         
         const user = await User.findById(decoded.id);
         if (!user) {

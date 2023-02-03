@@ -35,7 +35,7 @@ export default class Response<T = void> {
      */
     async authenticate(user: User) {
         // generate jwt token
-        const token = jwt.sign({ id: user.id }, process.env.SECRET as string, {
+        const token = jwt.sign({ id: user.id }, process.env.SESSION_SECRET as string, {
             expiresIn: "7d",
         });
 

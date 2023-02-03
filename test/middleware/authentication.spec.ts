@@ -2,7 +2,8 @@ import { prismaMock } from "../../prisma/singleton";
 import authenticate from "../../src/middleware/authentication";
 import { status } from "../../src/types/server";
 
-const fakeJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InNvbWUgaWQifQ.Wn_zslwJ1Wrb7i2krah1ZZ-WgWEvjv_-8cXgOn8vcHE";
+const fakeJWT =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InNvbWUgaWQifQ.AYrfUCXHiCNFtsaFz0mhc4nxVzZy_BJmdUa-pb36BEA";
 
 describe("Authentication Middleware", () => {
     it("should be unauthorized if no token is provided", () => {
@@ -48,7 +49,7 @@ describe("Authentication Middleware", () => {
         });
     });
 
-    it ("should be unauthorized if user is not found", async () => {
+    it("should be unauthorized if user is not found", async () => {
         const req = {
             cookies: {
                 authToken: fakeJWT,
