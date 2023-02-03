@@ -1,55 +1,53 @@
 import { prismaMock } from "../../prisma/singleton";
 import request from "supertest";
 import app from "../../src/api/main";
+import { status } from "../../src/types/server";
 
-describe("Registration", () => {
-    it("can register a user", async () => {
+describe("Login", () => {
+    it("can login a user", async () => {
         const user = {
+            id: "test",
             fullName: "John Doe",
-            email: "jdoe@example.com",
+            email: "jdoe@gmail.com",
             password: "password",
-        };
-
-        prismaMock.user.create.mockResolvedValue({
-            ...user,
-            id: expect.anything(),
-            password: expect.anything(),
-        });
-
-        await request(app)
-            .post("/api/auth/register")
-            .send(user)
-            .set('Accept', 'application/json')
-            .expect(201);
-    });
-
-    it("will not register a user that already exists", async () => {
-        const user = {
-            id: expect.anything(),
-            fullName: "John Doe",
-            email: "jdoe@example.com",
-            password: expect.anything(),
         };
 
         prismaMock.user.findFirst.mockResolvedValue(user);
 
         await request(app)
-            .post("/api/auth/register")
+            .post("/api/auth/login")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(403);
+            .expect(status.ok);
     });
 
-    it("will not register if required fields are missing", async () => {
+    it("will not login a user that does not exist", async () => {
+        const user = {
+            id: "test",
+            fullName: "John Doe",
+            email: "jdoe@example.com",
+            password: "password",
+        };
+
+        prismaMock.user.findFirst.mockResolvedValue(null);
+
+        await request(app)
+            .post("/api/auth/login")
+            .send(user)
+            .set('Accept', 'application/json')
+            .expect(status.unauthorized);
+    });
+
+    it("will not login if required fields are missing", async () => {
         const user = {
             fullName: "John Doe",
         };
 
         await request(app)
-            .post("/api/auth/register")
+            .post("/api/auth/login")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(400);
+            .expect(status.badRequest);
     });
 
     it("will throw error if user creation fails", async () => {
@@ -59,35 +57,31 @@ describe("Registration", () => {
             password: "password",
         };
 
-        prismaMock.user.create.mockRejectedValue(new Error("Failed to create user in database."));
-        prismaMock.user.findFirst.mockResolvedValue(null);
+        prismaMock.user.findFirst.mockRejectedValue(new Error("Test error"));
 
         await request(app)
-            .post("/api/auth/register")
+            .post("/api/auth/login")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(500);
+            .expect(status.internalServerError);
     });
 
-    it("will leave create a cookie for the user called authToken", async () => {
+    it("will create a cookie on successful login", async () => {
         const user = {
+            id: "test",
             fullName: "John Doe",
             email: "jdoe@example.com",
             password: "password",
         };
 
-        prismaMock.user.create.mockResolvedValue({
-            ...user,
-            id: expect.anything(),
-            password: expect.anything(),
-        });
+        prismaMock.user.findFirst.mockResolvedValue(user);
 
         const response = await request(app)
-            .post("/api/auth/register")
+            .post("/api/auth/login")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(201);
-
+            .expect(status.created)
+            
         expect(response.header["set-cookie"][0]).toMatch(/authToken/);
     });
 
@@ -98,14 +92,13 @@ describe("Registration", () => {
             password: "password",
         };
 
-        prismaMock.user.create.mockRejectedValue(new Error("Failed to create user in database."));
-        prismaMock.user.findFirst.mockResolvedValue(null);
+        prismaMock.user.findFirst.mockRejectedValue(new Error("Test error"));
 
         const response = await request(app)
-            .post("/api/auth/register")
+            .post("/api/auth/login")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(500);
+            .expect(status.internalServerError)
 
         expect(response.header["set-cookie"]).toBeUndefined();
     });
