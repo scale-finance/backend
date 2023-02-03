@@ -25,11 +25,10 @@ export const register: RequestHandler = async (req, res) => {
     try {
         // create user if applicable
         const user = await User.create(incomingUser);
+        response.authenticate(user);
 
         // return user id
-        return response.create(status.created, "User successfully created.", {
-            id: user.id,
-        });
+        return response.create(status.created, "User successfully created.");
     } catch (err) {
         const error = err as Error;
 
