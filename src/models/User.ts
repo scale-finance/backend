@@ -2,7 +2,6 @@ import { user as UserType } from "@prisma/client";
 import db from "../../prisma/client";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import { Request } from "express";
 
 /**
  * Class handling all user operations
@@ -11,11 +10,13 @@ export default class User {
     id: string;
     email: string;
     fullName: string;
+    password?: string;
     
     constructor (user: UserType) {
         this.id = user.id;
         this.email = user.email;
         this.fullName = user.fullName;
+        this.password = user.password;
     }
 
     /**
@@ -54,6 +55,24 @@ export default class User {
         } catch (err) {
             console.log(err);
             throw new Error("Failed to create user in database.")
+        }
+    }
+
+    /**
+     * Finds the user by the email
+     *
+     * @param email inputted email to find
+     * @returns user that matches email, or null otherwise
+     */
+     static async findByEmail(email: string): Promise<User | null> {
+        try {
+            const user = await db.user.findFirst({ where: { email } });
+
+            if (!user) return null;
+            return new User(user);
+        } catch (err) {
+            console.error(err);
+            throw new Error("Failed to retrieve user from database");
         }
     }
 
