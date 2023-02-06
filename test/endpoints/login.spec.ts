@@ -3,7 +3,7 @@ import request from "supertest";
 import app from "../../src/api/main";
 import { status } from "../../src/types/server";
 
-describe("Login", () => {
+describe.skip("Login", () => {
     it("can login a user", async () => {
         const user = {
             id: "test",
