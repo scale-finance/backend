@@ -74,6 +74,13 @@ describe("User Model", () => {
         await expect(User.findById("id")).resolves.toEqual(null);
     });
 
+    it("will hash password", async () => {
+        const testPassword = "something";
+        
+        // @ts-ignore
+        await expect(User.hash(testPassword)).resolves.not.toEqual(testPassword);
+    });
+
     it("will throw error if user find fails", async () => {
         prismaMock.user.findUnique.mockRejectedValue(new Error("Failed to find user in database."));
 

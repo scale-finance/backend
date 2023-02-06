@@ -1,6 +1,7 @@
 import { prismaMock } from "../../prisma/singleton";
 import request from "supertest";
 import app from "../../src/api/main";
+import { status } from "../../src/types/server";
 
 describe("Registration", () => {
     it("can register a user", async () => {
@@ -20,7 +21,7 @@ describe("Registration", () => {
             .post("/api/auth/register")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(201);
+            .expect(status.created);
     });
 
     it("will not register a user that already exists", async () => {
@@ -37,7 +38,7 @@ describe("Registration", () => {
             .post("/api/auth/register")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(403);
+            .expect(status.forbidden);
     });
 
     it("will not register if required fields are missing", async () => {
@@ -49,7 +50,7 @@ describe("Registration", () => {
             .post("/api/auth/register")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(400);
+            .expect(status.badRequest);
     });
 
     it("will throw error if user creation fails", async () => {
@@ -66,7 +67,7 @@ describe("Registration", () => {
             .post("/api/auth/register")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(500);
+            .expect(status.internalServerError);
     });
 
     it("will leave create a cookie for the user called authToken", async () => {
@@ -86,7 +87,7 @@ describe("Registration", () => {
             .post("/api/auth/register")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(201);
+            .expect(status.created);
 
         expect(response.header["set-cookie"][0]).toMatch(/authToken/);
     });
@@ -105,7 +106,7 @@ describe("Registration", () => {
             .post("/api/auth/register")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(500);
+            .expect(status.internalServerError);
 
         expect(response.header["set-cookie"]).toBeUndefined();
     });

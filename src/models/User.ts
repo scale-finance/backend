@@ -37,7 +37,7 @@ export default class User {
         const id = uuid();
 
         // hash the password
-        const hashedPassword = await bcrypt.hash(incomingUser.password, 10);
+        const hashedPassword = await this.hash(incomingUser.password);
 
         // create user
         try {
@@ -55,6 +55,16 @@ export default class User {
             console.log(err);
             throw new Error("Failed to create user in database.")
         }
+    }
+
+    /**
+     * Given a password string, this function will hash the password
+     * 
+     * @param password password given via user input
+     * @returns hashed password
+     */
+    private static async hash(password: string): Promise<string> {
+        return await bcrypt.hash(password, 10);
     }
 
     /**
