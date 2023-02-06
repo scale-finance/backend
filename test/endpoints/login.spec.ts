@@ -38,6 +38,26 @@ describe("Login", () => {
             .expect(status.unauthorized);
     });
 
+    it("will not login if the password does not match incoming password", async () => {
+        const user = {
+            fullName: "John Doe",
+            email: "jdoe@example.com",
+            password: "not the right password",
+        };
+
+        prismaMock.user.findFirst.mockResolvedValue({
+           id: expect.anything(),
+           email: user.email,
+           fullName: user.fullName,
+           password: "password hash from db",
+        });
+
+        await request(app)
+            .post("/api/auth/login")
+            .set("Accept", "application/json")
+            .expect(status.unauthorized);
+    });
+
     it("will not login if required fields are missing", async () => {
         const user = {
             fullName: "John Doe",
