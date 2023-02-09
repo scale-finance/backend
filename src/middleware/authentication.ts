@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { Response, User } from "../models";
-import jwt, { JwtPayload} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { status } from "../types/server";
 
 /**
@@ -29,8 +29,13 @@ const authenticate: RequestHandler = async (req, res, next) => {
             return response.create(status.unauthorized, "Invalid user.");
         }
 
-        // define local storage
-        res.locals.user = user;
+        // define local storage excluding password details
+        res.locals.user = {
+            fullName: user.fullName,
+            email: user.email,
+            id: user.id,
+        };
+
         next();
     } catch (err) {
         return response.create(status.internalServerError, "Failed to authenticate user.");
