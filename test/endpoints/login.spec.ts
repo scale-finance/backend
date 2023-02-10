@@ -3,7 +3,7 @@ import request from "supertest";
 import app from "../../src/api/main";
 import { status } from "../../src/types/server";
 
-describe.skip("Login", () => {
+describe("Login", () => {
     it("can login a user", async () => {
         const user = {
             id: "test",
@@ -70,7 +70,7 @@ describe.skip("Login", () => {
             .expect(status.badRequest);
     });
 
-    it("will throw error if user creation fails", async () => {
+    it("will throw error if user login fails", async () => {
         const user = {
             fullName: "John Doe",
             email: "jdoe@example.com",
@@ -100,12 +100,12 @@ describe.skip("Login", () => {
             .post("/api/auth/login")
             .send(user)
             .set('Accept', 'application/json')
-            .expect(status.created)
+            .expect(status.ok)
             
         expect(response.header["set-cookie"][0]).toMatch(/authToken/);
     });
 
-    it("will not create a cookie if user creation fails", async () => {
+    it("will not create a cookie if user login fails", async () => {
         const user = {
             fullName: "John Doe",
             email: "jdoe@example.com",
