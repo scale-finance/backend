@@ -6,6 +6,7 @@
     "scripts": {
         "start": "nodemon ./index.ts",
         "test": "jest --silent --passWithNoTests",
+        "test:unmute": "jest",
         "test:watch": "jest --watch"
     },
     "repository": {
