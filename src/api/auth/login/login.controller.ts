@@ -24,10 +24,10 @@ export const login: RequestHandler = async(req, res) => {
         return response.create(status.badRequest, "Missing required fields");
     }
 
+    // create variable to check for user in database
+    const foundUser = await User.findByEmail(incomingUser.email);
     try 
     {
-        // create variable to check for user in database
-        const foundUser = await User.findByEmail(incomingUser.email);
         if(foundUser == null)
         {
             return response.create(status.unauthorized, "Account does not exist");
@@ -41,6 +41,9 @@ export const login: RequestHandler = async(req, res) => {
                 {
                     return response.create(status.unauthorized, "Incorrect Password");
                 }
+            }
+            else{
+                throw new Error("Password doesn't exist, this shouldn't happen");
             }
         }
         catch(err)
@@ -56,7 +59,6 @@ export const login: RequestHandler = async(req, res) => {
 
     try {
         // authenticate the user
-        const foundUser = await User.findByEmail(incomingUser.email);
         response.authenticate(foundUser!);
 
         // return success response
