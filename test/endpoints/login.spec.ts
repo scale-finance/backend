@@ -54,6 +54,7 @@ describe("Login", () => {
 
         await request(app)
             .post("/api/auth/login")
+            .send(user)
             .set("Accept", "application/json")
             .expect(status.unauthorized);
     });
