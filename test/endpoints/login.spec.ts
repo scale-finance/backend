@@ -3,20 +3,22 @@ import request from "supertest";
 import app from "../../src/api/main";
 import { status } from "../../src/types/server";
 
+const validHash = "$2b$10$sz0hlF0y4RLc2QILnTbEGuy0SJsCNjP0v65TiaOFyEq4kqTJEwjwy";
+
 describe("Login", () => {
     it("can login a user", async () => {
         const user = {
             id: "test",
             fullName: "John Doe",
             email: "jdoe@gmail.com",
-            password: "password",
+            password: validHash,
         };
 
         prismaMock.user.findFirst.mockResolvedValue(user);
 
         await request(app)
             .post("/api/auth/login")
-            .send(user)
+            .send({ password: "password", email: user.email })
             .set('Accept', 'application/json')
             .expect(status.ok);
     });
@@ -92,14 +94,14 @@ describe("Login", () => {
             id: "test",
             fullName: "John Doe",
             email: "jdoe@example.com",
-            password: "password",
+            password: validHash,
         };
 
         prismaMock.user.findFirst.mockResolvedValue(user);
 
         const response = await request(app)
             .post("/api/auth/login")
-            .send(user)
+            .send({ password: "password", email: user.email })
             .set('Accept', 'application/json')
             .expect(status.ok)
             

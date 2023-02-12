@@ -18,16 +18,16 @@ export const login: RequestHandler = async(req, res) => {
     // check if user has all required fields
     if (
         !incomingUser?.email ||
-        !incomingUser?.password ||
-        !incomingUser?.fullName 
+        !incomingUser?.password
     ) {
         return response.create(status.badRequest, "Missing required fields");
     }
 
     // create variable to check for user in database
-    const foundUser = await User.findByEmail(incomingUser.email);
+    let foundUser: User | null;
     try 
     {
+        foundUser = await User.findByEmail(incomingUser.email);
         if(foundUser == null)
         {
             return response.create(status.unauthorized, "Account does not exist");
@@ -55,7 +55,6 @@ export const login: RequestHandler = async(req, res) => {
     {
         return response.create(status.internalServerError, "Account retrieval failed");
     }
-
 
     try {
         // authenticate the user
