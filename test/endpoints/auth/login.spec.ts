@@ -1,7 +1,7 @@
-import { prismaMock } from "../../prisma/singleton";
+import { prismaMock } from "../../../prisma/singleton";
 import request from "supertest";
-import app from "../../src/api/main";
-import { status } from "../../src/types/server";
+import app from "../../../src/api/main";
+import { status } from "../../../src/types/server";
 
 const validHash = "$2b$10$sz0hlF0y4RLc2QILnTbEGuy0SJsCNjP0v65TiaOFyEq4kqTJEwjwy";
 

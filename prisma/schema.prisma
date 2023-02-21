@@ -8,8 +8,26 @@ datasource db {
 }
 
 model user {
-  id       String @id
-  fullName String
-  password String
-  email    String @unique(map: "email")
+  id         String       @id
+  fullName   String
+  password   String
+  email      String       @unique(map: "email")
+  plaidToken plaidToken[]
+}
+
+model institution {
+  institutionId String       @id
+  name          String?
+  logo          String?
+  primaryColor  String?
+  plaidToken    plaidToken[]
+}
+
+model plaidToken {
+  itemId        String       @id
+  accessToken   String
+  userId        String?
+  institutionId String?
+  institution   institution? @relation(fields: [institutionId], references: [institutionId], onDelete: NoAction, onUpdate: NoAction)
+  user          user?        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

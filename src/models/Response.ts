@@ -27,6 +27,9 @@ export default class Response<T = void> {
             message,
             data,
         });
+
+        // ensures that user is not stored in locals when response is sent
+        if (this?.res?.locals?.user) this.res.locals.user = undefined;
     }
 
     /**
