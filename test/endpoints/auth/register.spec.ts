@@ -1,7 +1,7 @@
-import { prismaMock } from "../../prisma/singleton";
+import { prismaMock } from "../../../prisma/singleton";
 import request from "supertest";
-import app from "../../src/api/main";
-import { status } from "../../src/types/server";
+import app from "../../../src/api/main";
+import { status } from "../../../src/types/server";
 
 describe("Registration", () => {
     it("can register a user", async () => {
