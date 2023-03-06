@@ -2,9 +2,11 @@ import {
     Configuration,
     CountryCode,
     LinkTokenCreateResponse,
+    ItemPublicTokenExchangeResponse,
     PlaidApi,
     PlaidEnvironments,
     Products,
+    ItemPublicTokenCreateResponse,
 } from "plaid";
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
@@ -68,10 +70,22 @@ export default class Plaid {
      * 
      * @ignore
      */
-    public static async exchangePublicToken() { 
-        // TODO (Liam): implement this and erase me later, make sure to use the this.client and docs
-        // https://plaid.com/docs/api/tokens/#tokensexchange
-        throw new Error("not implemented");
+    public static async exchangePublicToken(
+        publicToken: string
+    ): Promise<ItemPublicTokenExchangeResponse["data"]> {
+
+        // builds a request for the access token
+        const request = {
+            public_token: publicToken,
+        };
+
+        // calls the exchange api and stores the response data and the access token
+        try{
+            const exchangeResponse = await this.client.itemPublicTokenExchange(request);
+            const accessToken = exchangeResponse.data.access_token;
+        } catch (err) {
+            throw new Error("Public token change failed");
+        }
     }
 
     /**
