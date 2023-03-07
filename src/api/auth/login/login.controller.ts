@@ -30,6 +30,7 @@ export const login: RequestHandler = async(req, res) => {
         foundUser = await User.findByEmail(incomingUser.email);
         if(foundUser == null)
         {
+            console.log("account doesnt exist");
             return response.create(status.unauthorized, "Account does not exist");
         }
         try
@@ -39,6 +40,7 @@ export const login: RequestHandler = async(req, res) => {
             {
                 if(!await bcrypt.compare(incomingUser.password, foundUser.password))
                 {
+                    console.log("password doesnt match");
                     return response.create(status.unauthorized, "Incorrect Password");
                 }
             }

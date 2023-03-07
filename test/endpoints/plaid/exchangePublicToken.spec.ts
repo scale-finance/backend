@@ -11,7 +11,7 @@ const validItemParams = {
     id: "id",
 };
 
-describe.skip("Exchange Public Token", () => {
+describe("Exchange Public Token", () => {
     describe("Exchange", () => {
         const mockItem = mock(Item);
         const itemInstance = instance(mockItem);
