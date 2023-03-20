@@ -24,7 +24,6 @@ describe("Exchange Public Token", () => {
                 spyItem.create(
                     validItemParams.userId,
                     validItemParams.token,
-                    validItemParams.id
                 )
             ).thenResolve(itemInstance);
 
@@ -43,7 +42,6 @@ describe("Exchange Public Token", () => {
                 spyItem.create(
                     validItemParams.userId,
                     validItemParams.token,
-                    validItemParams.id
                 )
             ).thenResolve(itemInstance);
 

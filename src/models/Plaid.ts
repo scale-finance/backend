@@ -1,12 +1,15 @@
 import {
     Configuration,
     CountryCode,
+    Item as PlaidItem,
+    ItemGetRequest,
     LinkTokenCreateResponse,
     ItemPublicTokenExchangeResponse,
     PlaidApi,
     PlaidEnvironments,
     Products,
-    ItemPublicTokenCreateResponse,
+    InstitutionsGetByIdRequest,
+    Institution,
 } from "plaid";
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
@@ -90,15 +93,45 @@ export default class Plaid {
 
     /**
      * Gets the item associated with an access token
+     * 
+     * @param accessToken the plaid access token related to the item
+     * @return plaid token
      */
-    public static async getItem() {
-        throw new Error("not implemented");
+    public static async getItem(accessToken: string): Promise<PlaidItem> {
+        const request: ItemGetRequest = {
+            access_token: accessToken,
+        };
+
+        try {
+            // get item
+            const response = await this.client.itemGet(request);
+            const item = response.data.item;
+
+            return item;
+        } catch (err) {
+            console.error(err);
+            throw new Error("Failed to get item");
+        }
     }
 
     /**
      * Gets the institution associated with an access token
      */
-    public static async getInstitution() {
-        throw new Error("not implemented");
+    public static async getInstitution(institutionId: string): Promise<Institution> {
+        const request: InstitutionsGetByIdRequest = {
+            institution_id: institutionId,
+            country_codes: [CountryCode.Us],
+        }
+
+        try {
+            // get institution
+            const response = await this.client.institutionsGetById(request);
+            const institution = response.data.institution;
+
+            return institution;
+        } catch (err) {
+            console.log(err);
+            throw new Error("Failed to get institution");
+        }
     }
 }
