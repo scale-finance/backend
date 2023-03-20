@@ -3,6 +3,6 @@ import { exchangePublicToken } from './exchange-token.controller';
 
 const exchangeTokenRouter = Router();
 
-exchangeTokenRouter.get("/exchange", exchangePublicToken);
+exchangeTokenRouter.post("/", exchangePublicToken);
 
 export default exchangeTokenRouter;

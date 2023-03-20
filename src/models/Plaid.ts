@@ -70,8 +70,6 @@ export default class Plaid {
 
     /**
      * Exchanges a public token for an access token
-     * 
-     * @ignore
      */
     public static async exchangePublicToken(
         publicToken: string
@@ -85,7 +83,7 @@ export default class Plaid {
         // calls the exchange api and stores the response data and the access token
         try{
             const exchangeResponse = await this.client.itemPublicTokenExchange(request);
-            const accessToken = exchangeResponse.data.access_token;
+            return exchangeResponse.data;
         } catch (err) {
             throw new Error("Public token change failed");
         }
