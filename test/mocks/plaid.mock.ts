@@ -27,10 +27,62 @@ export default class MockPlaid {
     }
 
     public static exchangePublicTokenError(): void {
+        nock(this.plaidURI).post("/item/public_token/exchange").reply(500, {
+            error_message: "invalid input",
+        });
+    }
+
+    public static getItem(): void {
         nock(this.plaidURI)
-            .post("/item/public_token/exchange")
-            .reply(500, {
-                error_message: "invalid input",
+            .post("/item/get")
+            .reply(200, {
+                item: {
+                    available_products: ["auth", "transactions"],
+                    billed_products: ["auth", "transactions"],
+                    error: null,
+                    institution_id: "fake-institution-id",
+                    item_id: "fake-item-id",
+                    webhook: "",
+                },
             });
+    }
+
+    public static getItemError(): void {
+        nock(this.plaidURI).post("/item/get").reply(500, {
+            error_message: "invalid input",
+        });
+    }
+
+    public static getInstitution(): void {
+        nock(this.plaidURI)
+            .post("/institutions/get_by_id")
+            .reply(200, {
+                institution: {
+                    country_codes: ["US"],
+                    credentials: [
+                        {
+                            label: "Username",
+                            name: "username",
+                            type: "text",
+                        },
+                        {
+                            label: "Password",
+                            name: "password",
+                            type: "password",
+                        },
+                    ],
+                    has_mfa: false,
+                    mfa: ["questions"],
+                    name: "Fake Institution",
+                    products: ["auth", "transactions"],
+                    url: "https://fakeinstitution.com",
+                },
+            });
+    }
+
+    public static getInstitutionError(): void {
+        nock(this.plaidURI).post("/institutions/get_by_id").reply(500, {
+            error_message: "invalid input",
+        });
     }
 }

@@ -24,10 +24,9 @@ model institution {
 }
 
 model plaidToken {
-  itemId        String       @id
-  accessToken   String
-  userId        String?
-  institutionId String?
-  institution   institution? @relation(fields: [institutionId], references: [institutionId], onDelete: NoAction, onUpdate: NoAction)
-  user          user?        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accessToken   String      @id
+  institutionId String
+  userId        String
+  user          user        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  institution   institution @relation(fields: [institutionId], references: [institutionId], onDelete: NoAction, onUpdate: NoAction)
 }
