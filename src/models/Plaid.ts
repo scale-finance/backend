@@ -4,6 +4,7 @@ import {
     Item as PlaidItem,
     ItemGetRequest,
     LinkTokenCreateResponse,
+    ItemPublicTokenExchangeResponse,
     PlaidApi,
     PlaidEnvironments,
     Products,
@@ -69,13 +70,23 @@ export default class Plaid {
 
     /**
      * Exchanges a public token for an access token
-     * 
-     * @ignore
      */
-    public static async exchangePublicToken() { 
-        // TODO (Liam): implement this and erase me later, make sure to use the this.client and docs
-        // https://plaid.com/docs/api/tokens/#tokensexchange
-        throw new Error("not implemented");
+    public static async exchangePublicToken(
+        publicToken: string
+    ): Promise<ItemPublicTokenExchangeResponse["data"]> {
+
+        // builds a request for the access token
+        const request = {
+            public_token: publicToken,
+        };
+
+        // calls the exchange api and stores the response data and the access token
+        try{
+            const exchangeResponse = await this.client.itemPublicTokenExchange(request);
+            return exchangeResponse.data;
+        } catch (err) {
+            throw new Error("Public token change failed");
+        }
     }
 
     /**

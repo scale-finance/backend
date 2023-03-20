@@ -22,7 +22,7 @@ export default class MockPlaid {
         nock(this.plaidURI).post("/item/public_token/exchange").reply(200, {
             access_token: "fake-access-token",
             item_id: "fake-item-id",
-            request_id: "fake-request-ida",
+            request_id: "fake-request-id",
         });
     }
 
