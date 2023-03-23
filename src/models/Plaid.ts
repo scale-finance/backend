@@ -37,7 +37,7 @@ export default class Plaid {
 
     /**
      * Creats a link token for a given user
-     * 
+     *
      * @param userId the user id
      * @returns the link token and other data
      */
@@ -74,15 +74,16 @@ export default class Plaid {
     public static async exchangePublicToken(
         publicToken: string
     ): Promise<ItemPublicTokenExchangeResponse["data"]> {
-
         // builds a request for the access token
         const request = {
             public_token: publicToken,
         };
 
         // calls the exchange api and stores the response data and the access token
-        try{
-            const exchangeResponse = await this.client.itemPublicTokenExchange(request);
+        try {
+            const exchangeResponse = await this.client.itemPublicTokenExchange(
+                request
+            );
             return exchangeResponse.data;
         } catch (err) {
             throw new Error("Public token change failed");
@@ -91,7 +92,7 @@ export default class Plaid {
 
     /**
      * Gets the item associated with an access token
-     * 
+     *
      * @param accessToken the plaid access token related to the item
      * @return plaid token
      */
@@ -115,11 +116,13 @@ export default class Plaid {
     /**
      * Gets the institution associated with an access token
      */
-    public static async getInstitution(institutionId: string): Promise<Institution> {
+    public static async getInstitution(
+        institutionId: string
+    ): Promise<Institution> {
         const request: InstitutionsGetByIdRequest = {
             institution_id: institutionId,
             country_codes: [CountryCode.Us],
-        }
+        };
 
         try {
             // get institution
@@ -130,6 +133,38 @@ export default class Plaid {
         } catch (err) {
             console.log(err);
             throw new Error("Failed to get institution");
+        }
+    }
+
+    /**
+     * Gets the transactions associated with an access token
+     *
+     * @param accessToken the plaid access token related to the item
+     * @return plaid token
+     */
+    public static async getTransactions(accessToken: string): Promise<any> {
+        // by default get last two years of transactions
+        const today = new Date();
+        const twoYearsAgo = new Date(
+            today.getFullYear() - 2,
+            today.getMonth(),
+            today.getDate()
+        );
+
+        // format dates as YYYY-MM-DD
+        const request = {
+            access_token: accessToken,
+            start_date: twoYearsAgo.toISOString().split("T")[0],
+            end_date: today.toISOString().split("T")[0],
+        };
+
+        // get transactions from plaid
+        try {
+            const response = await this.client.transactionsGet(request);
+            return response.data;
+        } catch (err) {
+            console.log(err);
+            throw new Error("Failed to get transactions");
         }
     }
 }
