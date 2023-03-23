@@ -12,8 +12,8 @@ export const createLinkToken: Handler = async (req, res) => {
     try {
         const tokenResponse = await Plaid.createLinkToken(user.id);
         response.create(200, "Link token created", tokenResponse);
-    } catch (err) {
-        console.error((err as Error).message);
+    } catch (err: any) {
+        console.error(err?.response?.data);
         response.create(500, "Could not create link token");
     }
 };

@@ -53,9 +53,6 @@ export default class Plaid {
             products: [
                 Products.Auth,
                 Products.Transactions,
-                Products.Balance,
-                Products.CreditDetails,
-                Products.RecurringTransactions,
             ],
             country_codes: [CountryCode.Us],
             language: "en",
