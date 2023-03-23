@@ -35,13 +35,12 @@ export default class Item {
                     },
                 })
             );
-
         } catch (err) {
             console.error(err);
-            
+
             throw new Error("Failed to get institution data");
         }
-        
+
         // if it doesn't exist, get the institution information from plaid
         try {
             if (!institutionExists) {
@@ -49,7 +48,7 @@ export default class Item {
                 const instutition = await Plaid.getInstitution(
                     item.institution_id as string
                 );
-        
+
                 // if it doesn't exist, get the institution information from plaid
                 await db.institution.create({
                     data: {
@@ -75,10 +74,38 @@ export default class Item {
                 },
             });
 
-            return new Item(accessToken, item.item_id, item.institution_id as string);
+            return new Item(
+                accessToken,
+                item.item_id,
+                item.institution_id as string
+            );
         } catch (err) {
             console.error(err);
             throw new Error("Failed to create item");
+        }
+    }
+
+    /**
+     * This function will get all items for a given user.
+     *
+     * @param userId user id
+     * @return array of items
+     */
+    public static async get(userId: string): Promise<Item[]> {
+        // get the plaid items
+        try {
+            const items = await db.plaidToken.findMany({
+                where: {
+                    userId: userId,
+                },
+            });
+
+            return items.map(
+                (item) => new Item(item.accessToken, userId, item.institutionId)
+            );
+        } catch (err) {
+            console.error(err);
+            throw new Error("Failed to get items");
         }
     }
 }

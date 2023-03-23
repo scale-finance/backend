@@ -106,5 +106,31 @@ describe("Item Model", () => {
                 "Failed to create item"
             );
         });
+
+        describe("get()", () => {
+            it("should get items", async () => {
+                // given
+                prismaMock.plaidToken.findMany.mockResolvedValueOnce([{
+                    userId,
+                    accessToken,
+                    institutionId,
+                }]);
+
+                // when then
+                await Item.get(userId);
+            });
+
+            it("should throw error if getting item fails", async () => {
+                // given
+                prismaMock.plaidToken.findMany.mockRejectedValueOnce(
+                    new Error("Failed to get item")
+                );
+
+                // when then
+                await expect(Item.get(userId)).rejects.toThrow(
+                    "Failed to get items"
+                );
+            });
+        });
     });
 });

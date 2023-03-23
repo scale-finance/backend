@@ -85,4 +85,17 @@ export default class MockPlaid {
             error_message: "invalid input",
         });
     }
+
+    public static getTransactions(): void {
+        nock(this.plaidURI).post("/transactions/get").reply(200, {
+            accounts: [],
+            transactions: [{}, {}]
+        });
+    }
+
+    public static getTransactionsError(): void {
+        nock(this.plaidURI).post("/transactions/get").reply(500, {
+            error_message: "invalid input",
+        });
+    }
 }
