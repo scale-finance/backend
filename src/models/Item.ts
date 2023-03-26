@@ -2,10 +2,10 @@ import db from "../../prisma/client";
 import Plaid from "./Plaid";
 
 export default class Item {
-    private token: string;
+    public token: string;
     public institutionId: string;
 
-    constructor(token: string, id: string, institutionId: string) {
+    constructor(token: string, institutionId: string) {
         this.token = token;
         this.institutionId = institutionId;
     }
@@ -77,7 +77,6 @@ export default class Item {
             return new Item(
                 accessToken,
                 item.item_id,
-                item.institution_id as string
             );
         } catch (err) {
             console.error(err);
@@ -101,7 +100,7 @@ export default class Item {
             });
 
             return items.map(
-                (item) => new Item(item.accessToken, userId, item.institutionId)
+                (item) => new Item(item.accessToken, item.institutionId)
             );
         } catch (err) {
             console.error(err);
