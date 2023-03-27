@@ -7,7 +7,7 @@ import { fakeJWT } from '../../utils';
 
 const spyItem = spy(Item);
 
-describe.skip('Transactions', () => {
+describe('Transactions', () => {
     describe('/all', () => {
         it('should return all transactions', async () => {
             // given
