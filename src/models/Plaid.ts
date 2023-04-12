@@ -148,6 +148,8 @@ export default class Plaid {
             today.getDate()
         );
 
+        console.log('transactions was called');
+
         // format dates as YYYY-MM-DD
         const request = {
             access_token: accessToken,
@@ -158,6 +160,7 @@ export default class Plaid {
         // get transactions from plaid
         try {
             const response = await this.client.transactionsGet(request);
+            console.log('response', response.data);
             return response.data;
         } catch (err) {
             console.log(err);
