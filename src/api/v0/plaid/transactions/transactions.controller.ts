@@ -4,18 +4,12 @@ import Plaid from "../../../../models/Plaid";
 import Item from "../../../../models/Item";
 import { status } from "../../../../types/server";
 
-
 interface TransactionRes {
-    id: string;
+    totalBalance: number;
+    transactions: any[];
 }
 
 export const getAllTransactions: Handler = async (req, res) => {
-    if (req.query.accessToken) {
-        const transactions = await Plaid.getTransactions(req.query.accessToken as string);
-
-        return res.status(status.ok).json(transactions);
-    }
-
     //create response object
     const response = new Response<TransactionRes>(res);
 
@@ -24,9 +18,6 @@ export const getAllTransactions: Handler = async (req, res) => {
 
     // create a user's item list
     const itemList = await Item.get(user.id);
-
-    // add type guard for fulfilled promises
-    const isFulfilled = <T>(input: PromiseSettledResult<T>): input is PromiseFulfilledResult<T> => input.status === 'fulfilled';
 
     // declare promise array
     const promiseArr = [];
@@ -41,10 +32,31 @@ export const getAllTransactions: Handler = async (req, res) => {
         const results = await Promise.allSettled(promiseArr);
 
         // filter the results for just the fulfilled Promises
-        const fulfillments = results?.find(isFulfilled)?.value;
+        const fulfillments = results?.filter(
+            (settled) => settled.status === "fulfilled"
+        );
 
-        // sort the transaction lists by the most recent to least recent
-        fulfillments?.sort((a: any, b: any) => a.createdAt - b.createdAt);
+        // get balance total from accounts
+        const totalBalance = fulfillments?.reduce(
+            (acc, curr) => {
+                    (curr as any)?.value?.accounts.forEach((account: any) => {
+                        acc += account.balances.current;
+                    })
+                    return acc;
+                },
+            0
+        );
+
+        // join all transaction arrays into one
+        const transactions = fulfillments?.reduce(
+            (acc, curr) => acc.concat((curr as any)?.value?.transactions),
+            []
+        );
+
+        // sort transactions by date
+        transactions?.sort((a: any, b: any) => {
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
 
         // if no transactions were found, return a 40
         if (!fulfillments?.length) {
@@ -52,9 +64,12 @@ export const getAllTransactions: Handler = async (req, res) => {
         }
 
         // return the list of all transactions for all items
-        return response.create(status.ok, "Transaction merge successful", fulfillments);
+        return response.create(status.ok, "Transaction merge successful", {
+            totalBalance,
+            transactions: transactions as any[],
+        });
     } catch (err) {
         console.error((err as Error).message);
         response.create(500, "Promises fullfilment failure.");
     }
-}
+};

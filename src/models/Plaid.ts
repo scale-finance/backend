@@ -10,6 +10,7 @@ import {
     Products,
     InstitutionsGetByIdRequest,
     Institution,
+    TransactionsGetResponse,
 } from "plaid";
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
@@ -139,7 +140,7 @@ export default class Plaid {
      * @param accessToken the plaid access token related to the item
      * @return plaid token
      */
-    public static async getTransactions(accessToken: string): Promise<any> {
+    public static async getTransactions(accessToken: string): Promise<TransactionsGetResponse> {
         // by default get last two years of transactions
         const today = new Date();
         const twoYearsAgo = new Date(
@@ -147,8 +148,6 @@ export default class Plaid {
             today.getMonth(),
             today.getDate()
         );
-
-        console.log('transactions was called');
 
         // format dates as YYYY-MM-DD
         const request = {
@@ -160,7 +159,6 @@ export default class Plaid {
         // get transactions from plaid
         try {
             const response = await this.client.transactionsGet(request);
-            console.log('response', response.data);
             return response.data;
         } catch (err) {
             console.log(err);

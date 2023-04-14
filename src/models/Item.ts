@@ -42,6 +42,7 @@ export default class Item {
         }
 
         // if it doesn't exist, get the institution information from plaid
+        
         try {
             if (!institutionExists) {
                 // get the institution information from plaid
@@ -55,7 +56,7 @@ export default class Item {
                         institutionId: item.institution_id as string,
                         name: instutition.name,
                         logo: instutition.logo,
-                        primaryColor: instutition.primary_color,
+                        primaryColor: instutition.primary_color
                     },
                 });
             }
