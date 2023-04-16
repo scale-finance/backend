@@ -108,4 +108,24 @@ export default class Item {
             throw new Error("Failed to get items");
         }
     }
+
+    /**
+     * This function will get all institution data for a given item.\
+     * 
+     * @return institution data
+     */
+    public async getInstitutionData(): Promise<any> {
+        try {
+            const institution = await db.institution.findUnique({
+                where: {
+                    institutionId: this.institutionId,
+                },
+            });
+
+            return institution;
+        } catch (err) {
+            console.error(err);
+            throw new Error("Failed to get institution data");
+        }
+    }
 }
