@@ -10,5 +10,6 @@ authRouter.post("/", (req, res) => {
 
 authRouter.use("/register", registrationRouter);
 authRouter.use("/login", loginRouter);
+authRouter.use("/logout", (req, res) => res.clearCookie("authToken").send("Logged out"));
 
 export default authRouter;
