@@ -44,7 +44,8 @@ export const getAllTransactions: Handler = async (req, res) => {
         // get balance total from accounts
         const totalBalance = fulfillments?.reduce((acc, curr) => {
             (curr as any)?.value?.accounts.forEach((account: any) => {
-                acc += account.balances.current;
+                if (account.type === "depository") acc += account.balances.current
+                else if (account.type === "credit") acc -= account.balances.current
             });
             return acc;
         }, 0);
@@ -91,7 +92,6 @@ export const getAllAccountsData: Handler = async (req, res) => {
     let itemList;
     try {
         itemList = await Item.get(user.id);
-        console.log(itemList);
     } catch (err) {
         return response.create(status.internalServerError, "Failed to get transactions");
     }
@@ -105,7 +105,6 @@ export const getAllAccountsData: Handler = async (req, res) => {
         const transactionFetch = async () => {
             // get institution id
             const institution = await item.getInstitutionData();
-            console.log('stuff');
 
             // define institution data
             data[institution.institutionId] = {
@@ -116,13 +115,13 @@ export const getAllAccountsData: Handler = async (req, res) => {
 
             // get the transactions for the item
             const response = await Plaid.getTransactions(item.token);
-            console.log('other stuff')
 
             // define account data
             response.accounts.forEach((account: any) => {
                 data[institution.institutionId].accounts[account.account_id] = {
                     name: account.name,
                     type: account.type,
+                    balance: account.balances.current,
                     transactions: [],
                 };
             });
@@ -147,7 +146,6 @@ export const getAllAccountsData: Handler = async (req, res) => {
         const fulfillments = results?.filter(
             (settled) => settled.status === "fulfilled"
         );
-        console.log(fulfillments)
 
         // if no accounts were found, return a 40
         if (!fulfillments?.length) {
