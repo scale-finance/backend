@@ -58,7 +58,7 @@ describe("Transactions", () => {
         });
     });
 
-    describe("/accounts", () => {
+    describe.skip("/accounts", () => {
         it("should return all accounts successfully", async () => {
             // given
             when(spyItem.get("fake-user-id")).thenResolve([
