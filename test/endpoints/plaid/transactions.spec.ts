@@ -1,11 +1,13 @@
-import request from 'supertest';
-import { spy, when } from 'ts-mockito';
-import app from '../../../src/api/main'
-import Item from '../../../src/models/Item';
-import MockPlaid from '../../mocks/plaid.mock';
-import { User } from '../../../src/models';
+import request from "supertest";
+import { mock, spy, when } from "ts-mockito";
+import app from "../../../src/api/main";
+import Item from "../../../src/models/Item";
+import MockPlaid from "../../mocks/plaid.mock";
+import { User } from "../../../src/models";
 
 const spyItem = spy(Item);
+const mockItem = mock(Item);
+const item = mockItem as Item;
 
 const fakeUserid =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZha2UtdXNlci1pZCJ9.G7S0qW1MxA01_-RYVj-IrJqWX5ZPzyNEUTp4xJdvo14";
@@ -19,17 +21,18 @@ beforeEach(() => {
     });
 });
 
-
-describe.skip('Transactions', () => {
-    describe('/all', () => {
-        it('should return all transactions', async () => {
+describe("Transactions", () => {
+    describe("/all", () => {
+        it("should return all transactions", async () => {
             // given
-            when(spyItem.get(expect.anything())).thenResolve([{} as Item]);
+            when(spyItem.get("fake-user-id")).thenResolve([
+                { token: "something" } as Item,
+            ]);
             MockPlaid.getTransactions();
 
             // when
             const response = await request(app)
-                .get('/api/v0/plaid/transactions/all')
+                .get("/api/v0/plaid/transactions/all")
                 .set("Cookie", [`authToken=${fakeUserid}`])
                 .expect(200);
 
@@ -37,20 +40,44 @@ describe.skip('Transactions', () => {
             expect(response.body.data.transactions).toHaveLength(2);
         });
 
-        it('should return an error', async () => {
+        it("should return an error", async () => {
             // given
-            when(spyItem.get(expect.anything())).thenResolve([{} as Item]);
-            MockPlaid.getTransactionsError();
+            when(spyItem.get("fake-user-id")).thenReject(
+                new Error("Failed to get transactions")
+            );
+            MockPlaid.getTransactions();
 
             // when
             const response = await request(app)
-                .get('/api/v0/plaid/transactions/all')
+                .get("/api/v0/plaid/transactions/all")
                 .set("Cookie", [`authToken=${fakeUserid}`])
                 .expect(500);
 
             // then
-            expect(response.body.error).toEqual("Failed to get transactions");
+            expect(response.body.message).toEqual("Failed to get transactions");
+        });
+    });
+
+    describe("/accounts", () => {
+        it("should return all accounts successfully", async () => {
+            // given
+            when(spyItem.get("fake-user-id")).thenResolve([
+                item,
+            ]);
+            when(mockItem.getInstitutionData()).thenResolve({
+                institutionId: "fake-institution-id",
+            });
+            when(mockItem.token).thenReturn("fake-token");
+            MockPlaid.getTransactions();
+
+            // when
+            const response = await request(app)
+                .get("/api/v0/plaid/transactions/accounts")
+                .set("Cookie", [`authToken=${fakeUserid}`])
+                .expect(200);
+
+            // then
+            expect(response.body.data.transactions).toHaveLength(2);
         });
     });
 });
-

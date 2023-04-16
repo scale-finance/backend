@@ -17,7 +17,12 @@ export const getAllTransactions: Handler = async (req, res) => {
     const user = response.getUser();
 
     // create a user's item list
-    const itemList = await Item.get(user.id);
+    let itemList: any[] = [];
+    try {
+        itemList = await Item.get(user.id);
+    } catch (err) {
+        return response.create(status.internalServerError, "Failed to get transactions");
+    }
 
     // declare promise array
     const promiseArr = [];
@@ -83,7 +88,13 @@ export const getAllAccountsData: Handler = async (req, res) => {
     const user = response.getUser();
 
     // create a user's item list
-    const itemList = await Item.get(user.id);
+    let itemList;
+    try {
+        itemList = await Item.get(user.id);
+        console.log(itemList);
+    } catch (err) {
+        return response.create(status.internalServerError, "Failed to get transactions");
+    }
 
     // declare promise array
     const promiseArr: any[] = [];
@@ -94,6 +105,7 @@ export const getAllAccountsData: Handler = async (req, res) => {
         const transactionFetch = async () => {
             // get institution id
             const institution = await item.getInstitutionData();
+            console.log('stuff');
 
             // define institution data
             data[institution.institutionId] = {
@@ -104,6 +116,7 @@ export const getAllAccountsData: Handler = async (req, res) => {
 
             // get the transactions for the item
             const response = await Plaid.getTransactions(item.token);
+            console.log('other stuff')
 
             // define account data
             response.accounts.forEach((account: any) => {
@@ -134,6 +147,7 @@ export const getAllAccountsData: Handler = async (req, res) => {
         const fulfillments = results?.filter(
             (settled) => settled.status === "fulfilled"
         );
+        console.log(fulfillments)
 
         // if no accounts were found, return a 40
         if (!fulfillments?.length) {
