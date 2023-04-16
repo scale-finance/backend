@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { getAllTransactions } from './transactions.controller';
+import { getAllAccountsData, getAllTransactions } from './transactions.controller';
 
 const transactionsRouter = Router();
 
 transactionsRouter.get('/all', getAllTransactions);
+transactionsRouter.get('/accounts', getAllAccountsData);
 
 export default transactionsRouter;
 
