@@ -17,7 +17,12 @@ export const getAllTransactions: Handler = async (req, res) => {
     const user = response.getUser();
 
     // create a user's item list
-    const itemList = await Item.get(user.id);
+    let itemList: any[] = [];
+    try {
+        itemList = await Item.get(user.id);
+    } catch (err) {
+        return response.create(status.internalServerError, "Failed to get transactions");
+    }
 
     // declare promise array
     const promiseArr = [];
@@ -39,7 +44,8 @@ export const getAllTransactions: Handler = async (req, res) => {
         // get balance total from accounts
         const totalBalance = fulfillments?.reduce((acc, curr) => {
             (curr as any)?.value?.accounts.forEach((account: any) => {
-                acc += account.balances.current;
+                if (account.type === "depository") acc += account.balances.current
+                else if (account.type === "credit") acc -= account.balances.current
             });
             return acc;
         }, 0);
@@ -83,7 +89,12 @@ export const getAllAccountsData: Handler = async (req, res) => {
     const user = response.getUser();
 
     // create a user's item list
-    const itemList = await Item.get(user.id);
+    let itemList;
+    try {
+        itemList = await Item.get(user.id);
+    } catch (err) {
+        return response.create(status.internalServerError, "Failed to get transactions");
+    }
 
     // declare promise array
     const promiseArr: any[] = [];
@@ -110,6 +121,7 @@ export const getAllAccountsData: Handler = async (req, res) => {
                 data[institution.institutionId].accounts[account.account_id] = {
                     name: account.name,
                     type: account.type,
+                    balance: account.balances.current,
                     transactions: [],
                 };
             });
