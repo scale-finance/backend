@@ -5,8 +5,7 @@ import Item from "../../../../models/Item";
 import { status } from "../../../../types/server";
 
 interface AccountRes {
-    totalBalance: number;
-    transactions: any[];
+    accountsData: any[];
 }
 
 export const getAllAccountsData: Handler = async (req, res) => {
@@ -23,8 +22,21 @@ export const getAllAccountsData: Handler = async (req, res) => {
     const promiseArr = [];
 
     // fill that promise array with each item's transactions
+    const data: any = {};
     for (let i = 0; i < itemList.length; i++) {
-        promiseArr.push(Plaid.getTransactions(itemList[i].token));
+        promiseArr.push(async () => {
+            const institution = itemList[i].institutionId;
+            data[institution] = {};
+            const response = await Plaid.getTransactions(itemList[i].token);
+            response.data.transactions.forEach((transaction: any) => {
+                // if the account doesn't exist, create it
+                if (!data?.[institution]?.[transaction.accountId])
+                    data[institution][transaction.accountId] = [];
+                
+                // push the transaction to the account
+                data[institution][transaction.accountId].push(transaction);
+            })
+        });
     }
 
     try {
@@ -36,37 +48,14 @@ export const getAllAccountsData: Handler = async (req, res) => {
             (settled) => settled.status === "fulfilled"
         );
 
-        // get balance total from accounts
-        const totalBalance = fulfillments?.reduce(
-            (acc, curr) => {
-                    (curr as any)?.value?.accounts.forEach((account: any) => {
-                        acc += account.balances.current;
-                    })
-                    return acc;
-                },
-            0
-        );
-
-        // join all transaction arrays into one
-        const transactions = fulfillments?.reduce(
-            (acc, curr) => acc.concat((curr as any)?.value?.transactions),
-            []
-        );
-
-        // sort transactions by date
-        transactions?.sort((a: any, b: any) => {
-            return new Date(b.date).getTime() - new Date(a.date).getTime();
-        });
-
-        // if no transactions were found, return a 40
+        // if no accounts were found, return a 40
         if (!fulfillments?.length) {
             return response.create(status.notFound, "No transactions found.");
         }
 
-        // return the list of all transactions for all items
-        return response.create(status.ok, "Transaction merge successful", {
-            totalBalance,
-            transactions: transactions as any[],
+        // return the list of all accounts for all items
+        return response.create(status.ok, "Accounts merge successful", {
+            accountsData: data as any[],
         });
     } catch (err) {
         console.error((err as Error).message);
